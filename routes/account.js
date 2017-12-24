@@ -15,8 +15,8 @@ router.post('/login', (req, res, next) => {
 
 	  // find the user
 	  User.findOne({
-	    username: req.body.username
-	  }).select('name username password').exec((err, user) => {
+	    email: req.body.email
+	  }).select('name password').exec((err, user) => {
 
 	    if (err) throw err;
 
