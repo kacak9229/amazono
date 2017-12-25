@@ -1,12 +1,24 @@
 const router = require('express').Router();
+const async = require('async');
+const stripe = require('stripe') ('sk_test_RtVWGtHcykG3FyyNS1EGhbIq');
+
+/* Models */
 const User = require('../models/user');
 const Product = require('../models/product');
 const Cart = require('../models/cart');
-const async = require('async');
+
+/* To be removed */
+const Category = require('../models/category');
+
+/* Algolia Search */
+const algoliasearch = require('algoliasearch');
+const client = algoliasearch('something', 'something2');
+const index = client.initIndex('producttesting');
 
 const checkJWT = require('../middlewares/check-jwt');
-const stripe = require('stripe') ('sk_test_RtVWGtHcykG3FyyNS1EGhbIq');
 
+/* TO BE DELETED */
+const faker = require('faker');
 
 /* PAGINATION FUNCTION */
 function paginate(req, res, next) {
@@ -37,52 +49,6 @@ router.get('/', (req, res, next) => {
   paginate(req, res, next);
 });
 
-/* CART API */
-router.get('/cart', (req, res, next) => {
-  Cart
-    .findOne({ owner: req.user._id })
-    .populate('items.item')
-    .exec(function(err, foundCart) {
-      if (err) return next(err);
-      res.render('main/cart', {
-        foundCart: foundCart,
-        message: req.flash('remove')
-      });
-    });
-});
-
-/* SINGLE PRODUCT API */
-router.post('/product/:productID', (req, res, next) => {
-  Cart.findOne({ owner: req.user._id }, (err, cart) => {
-    cart.items.push({
-      item: req.body.productID,
-      price: parseFloat(req.body.priceValue),
-      quantity: parseInt(req.body.quantity)
-    });
-
-    cart.total = (cart.total + parseFloat(req.body.priceValue)).toFixed(2);
-
-    cart.save()
-    res.json({
-      success: true,
-      message: "Successfully added the item to the cart"
-    });
-  });
-});
-
-/* REMOVE PRODUCT FROM CART */
-router.post('/remove', checkJWT, (req, res, next) => {
-  Cart.findOne({ owner: req.user._id }, (err, foundCart) => {
-    foundCart.items.pull(String(req.body.item));
-
-    foundCart.total = (foundCart.total - parseFloat(req.body.price)).toFixed(2);
-    foundCart.save()
-    res.json({
-      success: true,
-      message: "Successfully pulled the item"
-    });
-  });
-});
 
 router.get('/page/:page', (req, res, next) => {
   paginate(req,res,next);
@@ -102,7 +68,7 @@ router.get('/categories/:id', (req, res, next) => {
     });
 });
 
-/* GET - GET Single ITEM */
+/* GET - Single Product */
 router.get('/product/:id', function(req, res, next) {
   Product.findById({ _id: req.params.id }, function(err, product) {
     if (err) return next(err);
@@ -161,6 +127,34 @@ router.post('/payment', checkJWT, (req, res, next) => {
       }
     ]);
   });
+});
+
+/* ONLY FOR TESTING */
+router.post('/create-new-category', (req, res, next) => {
+  let category = new Category();
+  category.name = req.body.name;
+  category.save();
+  res.json('category created');
+});
+
+/* Using Faker */
+router.get('/populate/products/:id', (req, res, next) => {
+
+  for (i = 0; i < 30; i++) {
+    let product = new Product();
+    product.category = req.params.id;
+    product.owner = '5a3fd12c23825f001466bf8a';
+    product.image = faker.image.cats()
+    product.title = faker.commerce.productName();
+    product.description = faker.lorem.words();
+    product.price = faker.commerce.price();
+    product.save()
+  }
+
+  res.json({
+    message: 'Successfully added 30 pictures'
+  });
+
 });
 
 module.exports = router;

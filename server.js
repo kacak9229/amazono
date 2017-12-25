@@ -36,9 +36,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const mainRoutes = require('./routes/main');
 const userRoutes = require('./routes/account');
+const cartRoutes = require('./routes/cart');
+const productSearch = require('./routes/product-search');
+const sellerRoutes = require('./routes/seller');
 
 app.use('/api/accounts', userRoutes);
 app.use('/api', mainRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/search', productSearch);
+app.use('/api/seller', mainRoutes);
 
 app.listen(config.port, (err) => {
   console.log('Magic happens on port ' + config.port);
