@@ -7,6 +7,7 @@ const config 	   = require('./config');
 
 const app = express();
 
+/* Mongoose connected */
 mongoose.connect(config.database, { useMongoClient: true }, (err) => {
   if (err) {
     console.log(err);
@@ -20,7 +21,7 @@ mongoose.connect(config.database, { useMongoClient: true }, (err) => {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// configure our app to handle CORS requests
+/* configure our app to handle CORS requests */
 app.use(function(req, res, next) {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
@@ -28,12 +29,12 @@ app.use(function(req, res, next) {
 	next();
 });
 
-// Middleware
+/* Middleware */
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
+/* Routes */
 const mainRoutes = require('./routes/main');
 const userRoutes = require('./routes/account');
 const cartRoutes = require('./routes/cart');

@@ -91,7 +91,7 @@ router.post('/signup', (req, res, next) => {
     },
 
     function(user) {
-      var cart = new Cart();
+      let cart = new Cart();
       cart.owner = user._id;
       cart.save()
 
@@ -111,19 +111,23 @@ router.post('/signup', (req, res, next) => {
   ]);
 });
 
-router.route('/edit-profile', checkJWT)
+router.route('/profile', checkJWT)
   /* GET - EDIT PROFILE */
   .get((req, res, next) => {
-
+    res.json({
+      user: req.decoded._doc
+    });
   })
   /* POST - EDIT PROFILE */
   .post((req, res, next) => {
-    User.findOne({ _id: req.user._id }, function(err, user) {
+    User.findOne({ _id: req.decoded._doc._id }, function(err, user) {
 
       if (err) return next(err);
 
-      if (req.body.name) user.profile.name = req.body.name;
+      if (req.body.name) user.name = req.body.name;
+      if (req.body.email) user.email = req.body.email;
       if (req.body.address) user.address = req.body.address;
+      if (req.body.password) user.password = req.body.password;
 
       user.save()
       res.json({
@@ -132,5 +136,37 @@ router.route('/edit-profile', checkJWT)
       });
     });
   });
+
+  router.route('/address', checkJWT)
+    /* GET - EDIT PROFILE */
+    .get((req, res, next) => {
+      res.json({
+        user: req.decoded._doc
+      });
+    })
+    /* POST - EDIT PROFILE */
+    .post((req, res, next) => {
+      User.findOne({ _id: req.decoded._doc._id }, function(err, user) {
+
+        if (err) return next(err);
+
+        if (req.body.addr1) user.address.addr1 = req.body.addr1;
+        if (req.body.addr2) user.address.addr2 = req.body.addr2;
+        if (req.body.city) user.address.city = req.body.city;
+        if (req.body.state) user.address.state = req.body.state;
+        if (req.body.country) user.address.country = req.body.country;
+
+        user.save()
+        res.json({
+          success: true,
+          message: "Successfully edited your profile"
+        });
+      });
+    });
+
+
+
+
+
 
 module.exports = router;

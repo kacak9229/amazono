@@ -11,6 +11,15 @@ var UserSchema = new Schema({
   name: String,
   picture: String,
   address: String,
+  isSeller: { type: Boolean, default: false },
+  address: {
+    addr1: String,
+    addr2: String,
+    city: String,
+    state: String,
+    postalCode: Number,
+    country: String
+  },
   history: [{
     paid: { type: Number, default: 0},
     item: { type: Schema.Types.ObjectId, ref: 'Product'}

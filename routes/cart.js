@@ -37,7 +37,6 @@ router.post('/:productID', checkJWT, (req, res, next) => {
       success: true,
       message: "Successfully added the item to the cart"
     });
-
   });
 });
 

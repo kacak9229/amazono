@@ -38,7 +38,7 @@ function paginate(req, res, next) {
         res.json({
           success: true,
           products: products,
-          pages: count / perPage
+          pages: Math.ceil(count / perPage)
         });
       });
     });
@@ -49,12 +49,12 @@ router.get('/', (req, res, next) => {
   paginate(req, res, next);
 });
 
-
+/* Pagination */
 router.get('/page/:page', (req, res, next) => {
   paginate(req,res,next);
 });
 
-/* GET - GET CATEGORIES ITEMS */
+/* GET - CATEGORIES ITEMS */
 router.get('/categories/:id', (req, res, next) => {
   Product
     .find({ category: req.params.id })
@@ -72,9 +72,9 @@ router.get('/categories/:id', (req, res, next) => {
 router.get('/product/:id', function(req, res, next) {
   Product.findById({ _id: req.params.id }, function(err, product) {
     if (err) return next(err);
-    res.render('main/product', {
-      product: product
-    });
+    res.json({
+      product
+    })
   });
 });
 
