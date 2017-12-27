@@ -2,8 +2,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config')
 
 module.exports = function(req, res, next) {
-  console.log("Hello");
-  console.log(req.headers);
+
   let token = req.headers["authorization"];
   // decode token
   if (token) {
@@ -23,6 +22,7 @@ module.exports = function(req, res, next) {
     // if there is no token
     // return an error
     return res.status(403).send({
+        headers: req.headers,
         success: false,
         message: 'No token provided.'
     });
