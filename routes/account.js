@@ -16,7 +16,7 @@ router.post('/login', (req, res, next) => {
 
     User.findOne({ email: req.body.email }, (err, user) => {
 
-    
+
 	    if (err) throw err;
 
 	    // no user with that username was found
@@ -112,9 +112,8 @@ router.post('/signup', (req, res, next) => {
 router.route('/profile')
   /* GET - EDIT PROFILE */
   .get(checkJWT, (req, res, next) => {
-    console.log(req.decoded);
     res.json({
-      user: req.decoded,
+      user: req.decoded.user,
       message: "Successful"
     });
   })

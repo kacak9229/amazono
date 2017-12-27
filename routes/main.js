@@ -69,7 +69,7 @@ router.get('/categories/:id', (req, res, next) => {
 });
 
 /* GET - Single Product */
-router.get('/product/:id', function(req, res, next) {
+router.get('/product/:id', (req, res, next) => {
   Product.findById({ _id: req.params.id }, function(err, product) {
     if (err) return next(err);
     res.json({
@@ -86,15 +86,17 @@ router.post('/payment', checkJWT, (req, res, next) => {
   stripe.customers.create({
     source: stripeToken,
   }).then(function(customer) {
+
     return stripe.charges.create({
       amount: currentCharges,
       currency: 'usd',
       customer: customer.id
     });
+
   }).then(function(charge) {
     async.waterfall([
       function(callback) {
-        Cart.findOne({ owner: req.user._id }, (err, cart) => {
+        Cart.findOne({ owner: req.decoded._id }, (err, cart) => {
           callback(err, cart);
         });
       },
