@@ -13,10 +13,10 @@ const router = require('express').Router()
 /* LOGIN ROUTE */
 router.post('/login', (req, res, next) => {
 	  // find the user
-	  User.findOne({
-	    email: req.body.email
-	  }).select('name email picture isSeller _id').exec((err, user) => {
 
+    User.findOne({ email: req.body.email }, (err, user) => {
+
+    
 	    if (err) throw err;
 
 	    // no user with that username was found
