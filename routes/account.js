@@ -40,8 +40,7 @@ router.post('/login', (req, res, next) => {
 	        // if user is found and password is right
 	        // create a token
 	        var token = jwt.sign({
-	        	name: user.name,
-	        	username: user.username
+	        	user: user
 	        }, superSecret, {
 	          expiresIn: '24h' // expires in 24 hours
 	        });
@@ -116,6 +115,7 @@ router.route('/profile')
   .get(checkJWT, (req, res, next) => {
     console.log(req.decoded);
     res.json({
+      user: req.decoded,
       message: "Successful"
     });
   })
@@ -132,6 +132,7 @@ router.route('/profile')
 
       user.save()
       res.json({
+
         success: true,
         message: "Successfully edited your profile"
       });
