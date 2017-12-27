@@ -10,7 +10,6 @@ var UserSchema = new Schema({
   password: String,
   name: String,
   picture: String,
-  address: String,
   isSeller: { type: Boolean, default: false },
   address: {
     addr1: String,
