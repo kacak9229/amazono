@@ -15,7 +15,7 @@ const ProductSchema = new Schema({
 
 ProductSchema.plugin(mongooseAlgolia, {
   appId: 'CO3GNO6BHL',
-  apiKey: '7cb0b28f264284a8d60805680c978838',
+  apiKey: '3a4325e1bed03a2fa814393542dcbe61',
   indexName: 'producttesting',
   selector: 'title',
   populate: {

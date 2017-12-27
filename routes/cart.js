@@ -17,7 +17,6 @@ router.get('/', checkJWT, (req, res, next) => {
         status: 200,
         cart : foundCart,
       });
-
     });
 });
 

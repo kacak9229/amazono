@@ -1,9 +1,10 @@
 const jwt = require('jsonwebtoken');
+const config = require('../config')
 
 module.exports = function(req, res, next) {
-  // check header or url parameters or post parameters for token
-  var token = req.body.token;
-  console.log("This is ", token);
+  console.log("Hello");
+  console.log(req.headers);
+  let token = req.headers["authorization"];
   // decode token
   if (token) {
     // verifies secret and checks exp
@@ -12,8 +13,9 @@ module.exports = function(req, res, next) {
         return res.json({ success: false, message: 'Failed to authenticate token.' });
       } else {
         // if everything is good, save to request for use in other routes
-        console.log(decoded._doc.facebookId);
+        console.log(decoded);
         req.decoded = decoded;
+
         next();
       }
     });

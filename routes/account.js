@@ -111,11 +111,12 @@ router.post('/signup', (req, res, next) => {
   ]);
 });
 
-router.route('/profile', checkJWT)
+router.route('/profile')
   /* GET - EDIT PROFILE */
-  .get((req, res, next) => {
+  .get(checkJWT, (req, res, next) => {
+    console.log(req.decoded);
     res.json({
-      user: req.decoded._doc
+      message: "Successful"
     });
   })
   /* POST - EDIT PROFILE */
