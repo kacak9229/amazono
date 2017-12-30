@@ -1,11 +1,11 @@
 const router = require('express').Router();
 const async = require('async');
-const stripe = require('stripe') ('sk_test_RtVWGtHcykG3FyyNS1EGhbIq');
+const stripe = require('stripe') ('sk_test_JF4CoY7UAKFnkwzNgh1NtXDV');
 
 /* Models */
 const User = require('../models/user');
 const Product = require('../models/product');
-const Cart = require('../models/cart');
+const Order = require('../models/order');
 
 /* To be removed */
 const Category = require('../models/category');
@@ -80,11 +80,11 @@ router.get('/product/:id', (req, res, next) => {
 
 /* PAYMENT METHOD STRIPE */
 router.post('/payment', checkJWT, (req, res, next) => {
-
+  console.log(req.body.stripeToken);
   var stripeToken = req.body.stripeToken;
-  var currentCharges = Math.round(req.body.stripeMoney * 100);
+  var currentCharges = Math.round(req.body.totalPrice * 100);
   stripe.customers.create({
-    source: stripeToken,
+    source: stripeToken.id,
   }).then(function(customer) {
 
     return stripe.charges.create({
@@ -94,42 +94,33 @@ router.post('/payment', checkJWT, (req, res, next) => {
     });
 
   }).then(function(charge) {
-    async.waterfall([
-      function(callback) {
-        Cart.findOne({ owner: req.decoded._id }, (err, cart) => {
-          callback(err, cart);
-        });
-      },
-      function(cart, callback) {
-        User.findOne({ _id: req.user._id }, (err, user) => {
-          if (user) {
-            for (var i = 0; i < cart.items.length; i++) {
-              user.history.push({
-                item: cart.items[i].item,
-                paid: cart.items[i].price
-              });
-            }
+    const products = req.body.products;
 
-            user.save((err, user) => {
-              if (err) return next(err);
-              callback(err, user);
-            });
-          }
-        });
-      },
-      function(user) {
-        Cart.update({ owner: user._id }, { $set: { items: [], total: 0 }}, (err, updated) => {
-          if (updated) {
-            res.json({
-              success: true,
-              message: 'Successfully made a payment'
-            })
-          }
-        });
-      }
-    ]);
+    let order = new Order();
+    order.owner = req.decoded.user._id;
+    order.totalPrice = currentCharges;
+    order.state = "Processing";
+
+    products.map((product) => {
+
+      order.products.push({
+        product: product._id,
+        quantity: product.quantity
+      });
+    });
+
+    order.save();
+    res.json({
+      success: true,
+      message: "Successfully made a payment"
+    });
+
   });
 });
+
+
+
+
 
 /* ONLY FOR TESTING */
 router.post('/create-new-category', (req, res, next) => {

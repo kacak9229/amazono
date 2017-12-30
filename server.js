@@ -33,17 +33,16 @@ app.use(function(req, res, next) {
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(morgan('dev'));
 
 /* Routes */
 const mainRoutes = require('./routes/main');
 const userRoutes = require('./routes/account');
-const cartRoutes = require('./routes/cart');
 const productSearch = require('./routes/product-search');
 const sellerRoutes = require('./routes/seller');
 
 app.use('/api/accounts', userRoutes);
 app.use('/api', mainRoutes);
-app.use('/api/cart', cartRoutes);
 app.use('/api/search', productSearch);
 app.use('/api/seller', mainRoutes);
 

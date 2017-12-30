@@ -5,7 +5,7 @@ const stripe = require('stripe') ('sk_test_RtVWGtHcykG3FyyNS1EGhbIq');
 /* Models */
 const User = require('../models/user');
 const Product = require('../models/product');
-const Cart = require('../models/cart');
+const Order = require('../models/order');
 
 /* Algolia Search */
 const algoliasearch = require('algoliasearch');

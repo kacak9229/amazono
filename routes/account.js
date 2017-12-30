@@ -5,7 +5,7 @@ const config     = require('../config');
 const checkJWT = require('../middlewares/check-jwt');
 /* MODELS */
 const User       = require('../models/user');
-const Cart = require('../models/cart');
+const Order = require('../models/order');
 const superSecret = config.secret;
 const router = require('express').Router()
 
@@ -112,25 +112,27 @@ router.post('/signup', (req, res, next) => {
 router.route('/profile')
   /* GET - EDIT PROFILE */
   .get(checkJWT, (req, res, next) => {
-    res.json({
-      user: req.decoded.user,
-      message: "Successful"
-    });
+    User.findOne({ _id: req.decoded.user._id }, (err, user) => {
+      res.json({
+        user: user,
+        message: "Successful"
+      });
+    })
+
   })
   /* POST - EDIT PROFILE */
-  .post((req, res, next) => {
-    User.findOne({ _id: req.decoded._doc._id }, function(err, user) {
+  .post(checkJWT, (req, res, next) => {
+    User.findOne({ _id: req.decoded.user._id }, function(err, user) {
 
       if (err) return next(err);
-
+      console.log(req.body.name);
+      console.log(user.name);
       if (req.body.name) user.name = req.body.name;
       if (req.body.email) user.email = req.body.email;
-      if (req.body.address) user.address = req.body.address;
       if (req.body.password) user.password = req.body.password;
 
       user.save()
       res.json({
-
         success: true,
         message: "Successfully edited your profile"
       });
@@ -165,6 +167,20 @@ router.route('/profile')
     });
 
 
+  /* GET - orders */
+  router.get('/orders', checkJWT, (req, res, next) => {
+
+    Order
+    .find({ owner: req.decoded.user._id })
+    .populate('owner')
+    .populate('products.$.product')
+
+    .exec((err, orders) => {
+      res.json({
+        orders: orders
+      });
+    });
+  })
 
 
 

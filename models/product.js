@@ -39,3 +39,5 @@ Model.SyncToAlgolia();
 Model.SetAlgoliaSettings({
   searchableAttributes: ['name','properties','shows']
 })
+
+module.exports = Model;

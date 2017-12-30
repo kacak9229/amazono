@@ -22,10 +22,10 @@ const upload = multer({
 });
 
 /* POST - ADDING ITEM */
-router.post('/add-item', [checkJWT, upload.single('product_picture')], (req, res, next) => {
+router.post('/add-product', [checkJWT, upload.single('product_picture')], (req, res, next) => {
   let product = new Product;
   product.category = req.body.categoryID;
-  product.owner = req.decoded._doc._id;
+  product.owner = req.decoded.user._id;
   product.title = req.body.title;
   product.images.push(req.file.location);
   product.price = req.body.price;
