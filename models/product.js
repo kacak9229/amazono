@@ -37,7 +37,7 @@ let Model = mongoose.model('Product', ProductSchema);
 
 Model.SyncToAlgolia();
 Model.SetAlgoliaSettings({
-  searchableAttributes: ['name','properties','shows']
+  searchableAttributes: ['title']
 })
 
 module.exports = Model;

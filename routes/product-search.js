@@ -9,7 +9,7 @@ const Order = require('../models/order');
 
 /* Algolia Search */
 const algoliasearch = require('algoliasearch');
-const client = algoliasearch('something', 'something2');
+const client = algoliasearch('CO3GNO6BHL', '3a4325e1bed03a2fa814393542dcbe61');
 const index = client.initIndex('producttesting');
 
 const checkJWT = require('../middlewares/check-jwt');
@@ -19,6 +19,7 @@ router.route('/')
   .get((req, res, next) => {
     if (req.query.q) {
       index.search(req.query.q, (err, content) => {
+        console.log()
         res.json({
           success: true,
           status: 200,
