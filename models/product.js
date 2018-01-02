@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const mongooseAlgolia = require('mongoose-algolia');
+const deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 const ProductSchema = new Schema({
   category: { type: Schema.Types.ObjectId, ref: 'Category'},
@@ -17,7 +18,7 @@ ProductSchema.plugin(mongooseAlgolia, {
   appId: 'CO3GNO6BHL',
   apiKey: '3a4325e1bed03a2fa814393542dcbe61',
   indexName: 'producttesting',
-  selector: 'title',
+  selector: 'title _id image reviews description price created',
   populate: {
     path: 'owner',
     select: 'name'
@@ -33,8 +34,9 @@ ProductSchema.plugin(mongooseAlgolia, {
   debug: true
 });
 
-let Model = mongoose.model('Product', ProductSchema);
+ProductSchema.plugin(deepPopulate);
 
+let Model = mongoose.model('Product', ProductSchema);
 Model.SyncToAlgolia();
 Model.SetAlgoliaSettings({
   searchableAttributes: ['title']

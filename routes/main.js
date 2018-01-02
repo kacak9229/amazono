@@ -7,13 +7,10 @@ const User = require('../models/user');
 const Product = require('../models/product');
 const Order = require('../models/order');
 
+
 /* To be removed */
 const Category = require('../models/category');
 
-/* Algolia Search */
-const algoliasearch = require('algoliasearch');
-const client = algoliasearch('something', 'something2');
-const index = client.initIndex('producttesting');
 
 const checkJWT = require('../middlewares/check-jwt');
 
@@ -23,14 +20,15 @@ const faker = require('faker');
 /* PAGINATION FUNCTION */
 function paginate(req, res, next) {
 
-  var perPage = 9;
-  var page = req.params.page;
+  var perPage = 10;
+  var page = req.query.page;
 
   Product
     .find()
     .skip( perPage * page)
     .limit( perPage )
     .populate('category')
+    .populate('owner')
     .exec(function(err, products) {
       if (err) return next(err);
       Product.count().exec((err, count) => {
@@ -49,17 +47,23 @@ router.get('/', (req, res, next) => {
   paginate(req, res, next);
 });
 
-/* Pagination */
-router.get('/page/:page', (req, res, next) => {
-  paginate(req,res,next);
-});
+// /* Pagination */
+// router.get('/page/:page', (req, res, next) => {
+//   paginate(req,res,next);
+// });
 
 /* GET - CATEGORIES ITEMS */
 router.get('/categories/:id', (req, res, next) => {
+  var perPage = 10;
+  var page = req.query.page;
   Product
     .find({ category: req.params.id })
+    .skip( perPage * page)
+    .limit( perPage )
     .populate('category')
+    .populate('owner')
     .exec((err, products) => {
+      console.log(products.length);
       if (err) return next(err);
       res.json({
         success: true,
@@ -68,19 +72,43 @@ router.get('/categories/:id', (req, res, next) => {
     });
 });
 
+
+/* Testing */
+router.get('/categories', (req, res, next) => {
+  Category.find({}, (err, categories) => {
+    res.json({
+      success: true,
+      categories: categories
+    });
+  });
+});
+
 /* GET - Single Product */
 router.get('/product/:id', (req, res, next) => {
-  Product.findById({ _id: req.params.id }, function(err, product) {
-    if (err) return next(err);
-    res.json({
-      product
-    })
-  });
+  Product
+    .findById({ _id: req.params.id })
+    .populate('category')
+    .populate('owner')
+    .exec((err, product) => {
+      if (err) {
+        res.json({
+          success: false,
+          message: "Product is not found"
+        })
+      }
+      if (product) {
+        res.json({
+          success: true,
+          product: product
+        })
+      }
+    });
+
 });
 
 /* PAYMENT METHOD STRIPE */
 router.post('/payment', checkJWT, (req, res, next) => {
-  console.log(req.body.stripeToken);
+  console.log(req.body);
   var stripeToken = req.body.stripeToken;
   var currentCharges = Math.round(req.body.totalPrice * 100);
   stripe.customers.create({
@@ -104,7 +132,7 @@ router.post('/payment', checkJWT, (req, res, next) => {
     products.map((product) => {
 
       order.products.push({
-        product: product._id,
+        product: product.product,
         quantity: product.quantity
       });
     });

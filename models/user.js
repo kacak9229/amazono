@@ -16,8 +16,8 @@ var UserSchema = new Schema({
     addr2: String,
     city: String,
     state: String,
+    country: String,
     postalCode: Number,
-    country: String
   },
   history: [{
     paid: { type: Number, default: 0},

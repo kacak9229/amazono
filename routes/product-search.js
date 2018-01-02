@@ -15,20 +15,24 @@ const index = client.initIndex('producttesting');
 const checkJWT = require('../middlewares/check-jwt');
 
 /* ALGOLIA SEARCH */
-router.route('/')
-  .get((req, res, next) => {
-    if (req.query.q) {
-      index.search(req.query.q, (err, content) => {
-        console.log()
+
+
+  router.get('/', (req, res, next) => {
+    if (req.query.query) {
+      index.search({
+        query: req.query.query,
+        page: req.query.page,
+      }, (err, content) => {
         res.json({
           success: true,
           status: 200,
           content: content,
-          search_result: req.query.q
+          search_result: req.query.query
         });
-      });
+      })
     }
-  });
+  })
+
 
 
 module.exports = router

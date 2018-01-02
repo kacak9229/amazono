@@ -5,6 +5,7 @@ var ReviewSchema = new Schema({
   owner: { type: Schema.Types.ObjectId, ref: 'User'},
   title: String,
   body: String,
+  rating: Number,
   created: { type: Date, default: Date.now },
 });
 

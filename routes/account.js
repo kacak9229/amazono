@@ -59,54 +59,30 @@ router.post('/login', (req, res, next) => {
 /* SIGNUP ROUTE */
 router.post('/signup', (req, res, next) => {
 
-  async.waterfall([
-    function(callback) {
+    var user = new User();
+    user.name = req.body.name;
+    user.email = req.body.email;
+    user.password = req.body.password;
+    user.picture = user.gravatar();
 
-      var user = new User();
-      user.name = req.body.name;
-      user.email = req.body.email;
-      user.password = req.body.password;
-      user.picture = user.gravatar();
+    User.findOne({ email: req.body.email }, (err, existingUser) => {
 
-      User.findOne({ email: req.body.email }, (err, existingUser) => {
+      if (existingUser) {
 
-        if (existingUser) {
+        res.json({
+          success: false,
+          message: 'Account with that email is already exist',
+        });
 
-          res.json({
-            success: false,
-            message: 'Account with that email is already exist',
-          });
+      } else {
 
-        } else {
+        user.save(function(err, user) {
+          if (err) return next(err);
+          callback(null, user);
+        });
 
-          user.save(function(err, user) {
-            if (err) return next(err);
-            callback(null, user);
-          });
-
-        }
-      });
-    },
-
-    function(user) {
-      let cart = new Cart();
-      cart.owner = user._id;
-      cart.save()
-
-      var token = jwt.sign({
-        user: user
-      }, superSecret, {
-        expiresIn: '24h' // expires in 24 hours
-      });
-
-      // return the information including token as JSON
-      res.json({
-        success: true,
-        message: 'Enjoy your token!',
-        token: token
-      });
-    }
-  ]);
+      }
+    });
 });
 
 router.route('/profile')
@@ -125,11 +101,12 @@ router.route('/profile')
     User.findOne({ _id: req.decoded.user._id }, function(err, user) {
 
       if (err) return next(err);
-      console.log(req.body.name);
-      console.log(user.name);
+
       if (req.body.name) user.name = req.body.name;
       if (req.body.email) user.email = req.body.email;
       if (req.body.password) user.password = req.body.password;
+
+      user.isSeller = req.body.isSeller;
 
       user.save()
       res.json({
@@ -139,48 +116,106 @@ router.route('/profile')
     });
   });
 
-  router.route('/address', checkJWT)
+  router.route('/address')
     /* GET - EDIT PROFILE */
-    .get((req, res, next) => {
-      res.json({
-        user: req.decoded._doc
+    .get(checkJWT, (req, res, next) => {
+      User.findOne({ _id: req.decoded.user._id }, (err, user) => {
+        res.json({
+          address: user.address,
+          message: "Successful"
+        });
       });
+
     })
     /* POST - EDIT PROFILE */
-    .post((req, res, next) => {
-      User.findOne({ _id: req.decoded._doc._id }, function(err, user) {
+    .post(checkJWT, (req, res, next) => {
+      User.findOne({ _id: req.decoded.user._id }, function(err, user) {
 
         if (err) return next(err);
-
+        console.log(user);
         if (req.body.addr1) user.address.addr1 = req.body.addr1;
         if (req.body.addr2) user.address.addr2 = req.body.addr2;
         if (req.body.city) user.address.city = req.body.city;
         if (req.body.state) user.address.state = req.body.state;
         if (req.body.country) user.address.country = req.body.country;
+        if (req.body.postalCode) user.address.postalCode = req.body.postalCode;
 
         user.save()
         res.json({
           success: true,
-          message: "Successfully edited your profile"
+          message: "Successfully edited your address",
         });
       });
     });
 
 
   /* GET - orders */
+
+
   router.get('/orders', checkJWT, (req, res, next) => {
 
     Order
     .find({ owner: req.decoded.user._id })
+    .populate('products.product')
     .populate('owner')
-    .populate('products.$.product')
-
-    .exec((err, orders) => {
-      res.json({
-        orders: orders
-      });
+    .exec((err, order) => {
+      if (err) {
+        res.json({
+          success: false,
+          message: 'Couldn\'t find your order'
+        });
+      } else {
+        res.json({
+          success: true,
+          message: "Found your order",
+          order: order
+        });
+      }
     });
-  })
+  });
+
+  router.get('/orders/:id', checkJWT, (req, res, next) => {
+
+    Order
+    .findOne({ _id: req.params.id })
+    .populate('products.product')
+    .populate('owner')
+    .exec((err, orders) => {
+      if (err) {
+        res.json({
+          success: false,
+          message: 'Couldn\'t find your orders'
+        });
+      } else {
+        res.json({
+          success: true,
+          message: "Found your orders",
+          orders: orders
+        });
+      }
+
+    });
+  });
+
+
+  router.get('/all-orders', (req, res, next) => {
+    Order.find({})
+    .populate('products.product')
+    .exec((err, orders) => {
+      if (err) {
+        res.json({
+          success: false,
+          message: 'Couldn\'t find your order'
+        });
+      } else {
+        res.json({
+          success: true,
+          message: "Found your orders!",
+          orders: orders
+        });
+      }
+    });
+  });
 
 
 
