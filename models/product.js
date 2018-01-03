@@ -34,6 +34,12 @@ ProductSchema.plugin(mongooseAlgolia, {
   debug: true
 });
 
+ProductSchema.methods.calculateReviews = function (cb) {
+  this.reviews.map((review) => {
+    console.log(review);
+  });
+};
+
 ProductSchema.plugin(deepPopulate);
 
 let Model = mongoose.model('Product', ProductSchema);

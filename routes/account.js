@@ -6,6 +6,7 @@ const checkJWT = require('../middlewares/check-jwt');
 /* MODELS */
 const User       = require('../models/user');
 const Order = require('../models/order');
+const Review = require('../models/review');
 const superSecret = config.secret;
 const router = require('express').Router()
 
@@ -158,7 +159,7 @@ router.route('/profile')
     .find({ owner: req.decoded.user._id })
     .populate('products.product')
     .populate('owner')
-    .exec((err, order) => {
+    .exec((err, orders) => {
       if (err) {
         res.json({
           success: false,
@@ -168,7 +169,7 @@ router.route('/profile')
         res.json({
           success: true,
           message: "Found your order",
-          order: order
+          orders: orders
         });
       }
     });
@@ -180,7 +181,7 @@ router.route('/profile')
     .findOne({ _id: req.params.id })
     .populate('products.product')
     .populate('owner')
-    .exec((err, orders) => {
+    .exec((err, order) => {
       if (err) {
         res.json({
           success: false,
@@ -190,7 +191,7 @@ router.route('/profile')
         res.json({
           success: true,
           message: "Found your orders",
-          orders: orders
+          order: order
         });
       }
 
