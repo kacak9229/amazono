@@ -20,7 +20,7 @@ const faker = require('faker');
 /* PAGINATION FUNCTION */
 function paginate(req, res, next) {
 
-  var perPage = 10;
+  const perPage = 10;
   var page = req.query.page;
 
   Product
@@ -54,7 +54,7 @@ router.get('/', (req, res, next) => {
 
 /* GET - CATEGORIES ITEMS */
 router.get('/categories/:id', (req, res, next) => {
-  var perPage = 10;
+  const perPage = 10;
   var page = req.query.page;
   Product
     .find({ category: req.params.id })
@@ -63,12 +63,19 @@ router.get('/categories/:id', (req, res, next) => {
     .populate('category')
     .populate('owner')
     .exec((err, products) => {
-      console.log(products.length);
+      let productCategoryName = products[0].category.name;
       if (err) return next(err);
-      res.json({
-        success: true,
-        products: products
-      })
+      Product.count().exec((err, count) => {
+        if (err) return next(err);
+        res.json({
+          success: true,
+          message: `${productCategoryName} category`,
+          products: products,
+          totalProducts: products.length,
+          categoryTitle: productCategoryName,
+          pages: Math.ceil(count / perPage)
+        })
+      });
     });
 });
 
