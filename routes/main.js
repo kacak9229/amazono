@@ -109,12 +109,7 @@ router.get('/product/:id', (req, res, next) => {
         function(callback) {
           var rating = 0
           product.reviews.map((review) => {
-            console.log(review.rating);
-            if (review.rating === undefined) {
-              review.rating = 0;
-            }
             rating += review.rating;
-
           })
           rating = rating / product.reviews.length;
 
@@ -189,10 +184,11 @@ router.post('/review', checkJWT, (req, res, next) => {
     },
     function(product) {
       let review = new Review();
-      review.owner = req.decoded.user._id
+      review.owner = req.decoded.user._id;
+      review.rating = req.body.rating;
       if (req.body.title) review.title = req.body.title;
       if (req.body.description) review.description = req.body.description;
-      if (req.body.rating) review.rating = req.body.rating;
+
 
       product.reviews.push(review._id);
       product.save();
