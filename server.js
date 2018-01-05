@@ -17,9 +17,6 @@ mongoose.connect(config.database, { useMongoClient: true }, (err) => {
 });
 // APP CONFIGURATION ==================
 // ====================================
-// use body parser so we can grab information from POST requests
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 
 /* configure our app to handle CORS requests */
 app.use(function(req, res, next) {
@@ -32,7 +29,7 @@ app.use(function(req, res, next) {
 /* Middleware */
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('dev'));
 
 /* Routes */
@@ -44,7 +41,7 @@ const sellerRoutes = require('./routes/seller');
 app.use('/api/accounts', userRoutes);
 app.use('/api', mainRoutes);
 app.use('/api/search', productSearch);
-app.use('/api/seller', mainRoutes);
+app.use('/api/seller', sellerRoutes);
 
 app.listen(config.port, (err) => {
   console.log('Magic happens on port ' + config.port);

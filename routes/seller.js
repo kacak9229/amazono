@@ -1,9 +1,10 @@
 const router = require('express').Router()
+const Product = require('../models/product');
 
 const aws = require('aws-sdk')
 const multer = require('multer');
 const multerS3 = require('multer-s3')
-const s3 = new aws.S3({ accessKeyId: '13123123', secretAccessKey: '12312312123'})
+const s3 = new aws.S3({ accessKeyId: 'AKIAIEXJ3IWGGSLED3DA', secretAccessKey: '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'})
 
 const checkJWT = require('../middlewares/check-jwt');
 
@@ -21,20 +22,45 @@ const upload = multer({
   })
 });
 
-/* POST - ADDING ITEM */
-router.post('/add-product', [checkJWT, upload.single('product_picture')], (req, res, next) => {
-  let product = new Product;
-  product.category = req.body.categoryID;
-  product.owner = req.decoded.user._id;
-  product.title = req.body.title;
-  product.images.push(req.file.location);
-  product.price = req.body.price;
-  product.description = req.body.description;
-  product.save()
-  res.json({
-    success: true,
-    message: "Successfully added the product"
+/* GET AND POST PRODUCTS - ADDING ITEM */
+router.route('/product')
+  .get(checkJWT, (req, res, next) => {
+    Product.find({ owner: req.decoded.user._id }, (err, products) => {
+      if (products) {
+        res.json({
+          success: true,
+          message: `${req.decoded.user.name}'s products`,
+          products: products
+        });
+      }
+    })
+  })
+
+  .post([checkJWT, upload.single('product_picture')], (req, res, next) => {
+    let product = new Product;
+    console.log(req.body);
+
+    product.owner = req.decoded.user._id;
+    product.category = req.body.categoryId;
+    product.title = req.body.title;
+    product.price = req.body.price;
+    product.description = req.body.description;
+    console.log(req.file.location);
+    product.image = req.file.location;
+    product.save()
+    res.json({
+      success: true,
+      message: "Successfully added the product"
+    });
+  })
+
+/* Remove all items own by owner */
+router.get('/remove-products', checkJWT, (req, res, next) => {
+  Product.find({ owner: req.decoded.user._id }).remove((err, result) => {
+    res.json({
+      message: "Successfully removed all the products"
+    })
   });
-});
+})
 
 module.exports = router
