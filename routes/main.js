@@ -103,6 +103,9 @@ router.get('/product/:id', (req, res, next) => {
           var rating = 0
           product.reviews.map((review) => {
             console.log(review.rating);
+            if (review.rating === undefined) {
+              review.rating = 0;
+            }
             rating += review.rating;
 
           })
