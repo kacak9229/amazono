@@ -23,7 +23,7 @@ const upload = multer({
 });
 
 /* GET AND POST PRODUCTS - ADDING ITEM */
-router.route('/product')
+router.route('/products')
   .get(checkJWT, (req, res, next) => {
     Product.find({ owner: req.decoded.user._id }, (err, products) => {
       if (products) {
@@ -38,14 +38,11 @@ router.route('/product')
 
   .post([checkJWT, upload.single('product_picture')], (req, res, next) => {
     let product = new Product;
-    console.log(req.body);
-
     product.owner = req.decoded.user._id;
     product.category = req.body.categoryId;
     product.title = req.body.title;
     product.price = req.body.price;
     product.description = req.body.description;
-    console.log(req.file.location);
     product.image = req.file.location;
     product.save()
     res.json({
