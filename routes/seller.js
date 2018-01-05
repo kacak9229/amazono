@@ -25,15 +25,20 @@ const upload = multer({
 /* GET AND POST PRODUCTS - ADDING ITEM */
 router.route('/products')
   .get(checkJWT, (req, res, next) => {
-    Product.find({ owner: req.decoded.user._id }, (err, products) => {
-      if (products) {
-        res.json({
-          success: true,
-          message: `${req.decoded.user.name}'s products`,
-          products: products
-        });
-      }
-    })
+  
+    Product
+      .find({ owner: req.decoded.user._id })
+      .populate('owner')
+      .populate('category')
+      .exec((err, products) => {
+        if (products) {
+          res.json({
+            success: true,
+            message: `${req.decoded.user.name}'s products`,
+            products: products
+          });
+        }
+      });
   })
 
   .post([checkJWT, upload.single('product_picture')], (req, res, next) => {

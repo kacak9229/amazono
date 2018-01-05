@@ -34,10 +34,18 @@ ProductSchema.plugin(mongooseAlgolia, {
   debug: true
 });
 
-ProductSchema.methods.calculateReviews = function (cb) {
+
+
+ProductSchema.methods.calculateReviews = function () {
+
+  var rating = 0
   this.reviews.map((review) => {
-    console.log(review);
+    rating += review.rating;
   });
+
+  rating = rating / product.reviews.length;
+  
+  return rating;
 };
 
 ProductSchema.plugin(deepPopulate);

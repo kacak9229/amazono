@@ -62,9 +62,11 @@ router.get('/categories/:id', (req, res, next) => {
     .limit( perPage )
     .populate('category')
     .populate('owner')
+    .populate('reviews')
     .exec((err, products) => {
       let productCategoryName = products[0].category.name;
       if (err) return next(err);
+      console.log(products[0].calculateReviews);
       Product.count().exec((err, count) => {
         if (err) return next(err);
         res.json({
@@ -92,7 +94,6 @@ router.get('/categories', (req, res, next) => {
 
 /* GET - Single Product */
 router.get('/product/:id', (req, res, next) => {
-  console.log(typeof 0);
   Product
     .findById({ _id: req.params.id })
     .populate('category')
@@ -183,7 +184,7 @@ router.post('/review', checkJWT, (req, res, next) => {
       })
     },
     function(product) {
-      
+
       let review = new Review();
       review.owner = req.decoded.user._id;
 
