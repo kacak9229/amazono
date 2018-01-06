@@ -12,16 +12,41 @@ const ProductSchema = new Schema({
   description: String,
   price: Number,
   created: { type: Date, default: Date.now },
+},{
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true }
+});
+
+ProductSchema
+  .virtual('categoryName')
+  .get(function() {
+    return this.category.name;
+  });
+
+ProductSchema
+.virtual('averageRating')
+.get(function() {
+  var rating = 0;
+  if (this.reviews.length == 0) {
+    rating = 0
+  } else {
+    this.reviews.map((review) => {
+      rating += review.rating;
+    });
+    rating = rating / this.reviews.length;
+  }
+
+  return rating;
 });
 
 ProductSchema.plugin(mongooseAlgolia, {
   appId: 'CO3GNO6BHL',
   apiKey: '3a4325e1bed03a2fa814393542dcbe61',
   indexName: 'producttesting',
-  selector: 'title _id image reviews description price created',
+  selector: 'title _id image reviews description price owner created',
   populate: {
-    path: 'owner',
-    select: 'name'
+    path: 'owner reviews',
+    select: 'name rating'
   },
   defaults: {
     author: 'uknown'
@@ -31,22 +56,13 @@ ProductSchema.plugin(mongooseAlgolia, {
       return `${value}`
     }
   },
+  virtuals: {
+    imageV1: function(doc) {
+      return `Custom data ${doc.image}`
+    }
+  },
   debug: true
 });
-
-
-
-ProductSchema.methods.calculateReviews = function () {
-
-  var rating = 0
-  this.reviews.map((review) => {
-    rating += review.rating;
-  });
-
-  rating = rating / product.reviews.length;
-  
-  return rating;
-};
 
 ProductSchema.plugin(deepPopulate);
 

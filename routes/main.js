@@ -56,29 +56,38 @@ router.get('/', (req, res, next) => {
 router.get('/categories/:id', (req, res, next) => {
   const perPage = 10;
   var page = req.query.page;
-  Product
-    .find({ category: req.params.id })
-    .skip( perPage * page)
-    .limit( perPage )
-    .populate('category')
-    .populate('owner')
-    .populate('reviews')
-    .exec((err, products) => {
-      let productCategoryName = products[0].category.name;
-      if (err) return next(err);
-      console.log(products[0].calculateReviews);
-      Product.count().exec((err, count) => {
-        if (err) return next(err);
-        res.json({
-          success: true,
-          message: `${productCategoryName} category`,
-          products: products,
-          totalProducts: products.length,
-          categoryTitle: productCategoryName,
-          pages: Math.ceil(count / perPage)
-        })
-      });
-    });
+  async.waterfall([
+    function(callback) {
+      Product.find({ category: req.params.id }, (err, products) => {
+        var totalProducts = products.length;
+        callback(err, totalProducts);
+      })
+    },
+    function(totalProducts, callback) {
+      Product
+        .find({ category: req.params.id })
+        .skip( perPage * page)
+        .limit( perPage )
+        .populate('category')
+        .populate('owner')
+        .populate('reviews')
+        .exec((err, products) => {
+
+          if (err) return next(err);
+          Product.count().exec((err, count) => {
+            if (err) return next(err);
+            res.json({
+              success: true,
+              message: `category`,
+              products: products,
+              categoryName: products[0].category.name,
+              totalProducts: totalProducts,
+              pages: Math.ceil(count / perPage)
+            })
+          });
+        });
+    }
+  ])
 });
 
 
@@ -94,6 +103,7 @@ router.get('/categories', (req, res, next) => {
 
 /* GET - Single Product */
 router.get('/product/:id', (req, res, next) => {
+
   Product
     .findById({ _id: req.params.id })
     .populate('category')
@@ -105,27 +115,14 @@ router.get('/product/:id', (req, res, next) => {
           success: false,
           message: "Product is not found"
         })
-      }
-      async.waterfall([
-        function(callback) {
-          var rating = 0
-          product.reviews.map((review) => {
-            rating += review.rating;
+      } else {
+        if (product) {
+          res.json({
+            success: true,
+            product: product
           })
-          rating = rating / product.reviews.length;
-
-          callback(err, rating);
-        },
-        function(rating) {
-          if (product) {
-            res.json({
-              rating: rating,
-              success: true,
-              product: product
-            })
-          }
         }
-      ])
+      }
     });
 
 });
