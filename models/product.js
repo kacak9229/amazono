@@ -43,7 +43,7 @@ ProductSchema.plugin(mongooseAlgolia, {
   appId: 'CO3GNO6BHL',
   apiKey: '3a4325e1bed03a2fa814393542dcbe61',
   indexName: 'producttesting',
-  selector: 'title _id image reviews description price owner created searchAverageRating',
+  selector: 'title _id image reviews description price owner created averageRating',
   populate: {
     path: 'owner reviews',
     select: 'name rating'
