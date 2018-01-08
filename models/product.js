@@ -43,7 +43,7 @@ ProductSchema.plugin(mongooseAlgolia, {
   appId: 'CO3GNO6BHL',
   apiKey: '3a4325e1bed03a2fa814393542dcbe61',
   indexName: 'producttesting',
-  selector: 'title _id image reviews description price owner created',
+  selector: 'title _id image reviews description price owner created searchAverageRating',
   populate: {
     path: 'owner reviews',
     select: 'name rating'
@@ -57,13 +57,22 @@ ProductSchema.plugin(mongooseAlgolia, {
     }
   },
   virtuals: {
-    imageV1: function(doc) {
-      return `Custom data ${doc.image}`
+    averageRating: function(doc) {
+      var rating = 0;
+      if (doc.reviews.length == 0) {
+        rating = 0
+      } else {
+        doc.reviews.map((review) => {
+          rating += review.rating;
+        });
+        rating = rating / doc.reviews.length;
+      }
+
+      return rating;
     }
   },
   debug: true
 });
-
 ProductSchema.plugin(deepPopulate);
 
 let Model = mongoose.model('Product', ProductSchema);

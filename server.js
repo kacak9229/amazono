@@ -32,6 +32,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('dev'));
 
+
 /* Routes */
 const mainRoutes = require('./routes/main');
 const userRoutes = require('./routes/account');
