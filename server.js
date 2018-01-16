@@ -1,8 +1,8 @@
 const express = require('express');
-const JWT = require('jsonwebtoken');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const JWT = require('jsonwebtoken');
 const config 	   = require('./config');
 
 const app = express();

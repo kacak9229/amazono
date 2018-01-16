@@ -79,7 +79,18 @@ router.post('/signup', (req, res, next) => {
 
         user.save(function(err, user) {
           if (err) return next(err);
-          callback(null, user);
+          var token = jwt.sign({
+	        	user: user
+	        }, superSecret, {
+	          expiresIn: '24h' // expires in 24 hours
+	        });
+
+	        // return the information including token as JSON
+	        res.json({
+	          success: true,
+	          message: 'Enjoy your token!',
+	          token: token
+	        });
         });
 
       }
@@ -151,8 +162,6 @@ router.route('/profile')
 
 
   /* GET - orders */
-
-
   router.get('/orders', checkJWT, (req, res, next) => {
 
     Order
@@ -179,7 +188,7 @@ router.route('/profile')
 
     Order
     .findOne({ _id: req.params.id })
-    .populate('products.product')
+    .deepPopulate('products.product.owner')
     .populate('owner')
     .exec((err, order) => {
       if (err) {

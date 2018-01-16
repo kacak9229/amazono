@@ -10,8 +10,6 @@ const Review = require('../models/review');
 
 /* To be removed */
 const Category = require('../models/category');
-
-
 const checkJWT = require('../middlewares/check-jwt');
 
 /* TO BE DELETED */
@@ -43,7 +41,7 @@ function paginate(req, res, next) {
 }
 
 /* HOME PAGE */
-router.get('/', (req, res, next) => {
+router.get('/products', (req, res, next) => {
   paginate(req, res, next);
 });
 

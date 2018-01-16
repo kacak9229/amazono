@@ -25,7 +25,7 @@ const upload = multer({
 /* GET AND POST PRODUCTS - ADDING ITEM */
 router.route('/products')
   .get(checkJWT, (req, res, next) => {
-  
+
     Product
       .find({ owner: req.decoded.user._id })
       .populate('owner')
@@ -61,6 +61,20 @@ router.get('/remove-products', checkJWT, (req, res, next) => {
   Product.find({ owner: req.decoded.user._id }).remove((err, result) => {
     res.json({
       message: "Successfully removed all the products"
+    })
+  });
+})
+
+/* Change product images */
+router.get('/change-images', (req, res, next) => {
+  Product.find({}, (err, products) => {
+    products.map((product) => {
+      product.image = "https://picsum.photos/250/?random";
+      product.save();
+    });
+
+    res.json({
+      message: "Successfully changed the images"
     })
   });
 })
