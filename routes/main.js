@@ -13,7 +13,7 @@ const Category = require('../models/category');
 const checkJWT = require('../middlewares/check-jwt');
 
 /* TO BE DELETED */
-const faker = require('faker');
+
 
 /* PAGINATION FUNCTION */
 function paginate(req, res, next) {
@@ -89,15 +89,25 @@ router.get('/categories/:id', (req, res, next) => {
 });
 
 
-/* Testing */
-router.get('/categories', (req, res, next) => {
-  Category.find({}, (err, categories) => {
+router.route('/categories')
+  .get((req, res, next) => {
+    Category.find({}, (err, categories) => {
+      res.json({
+        success: true,
+        message: "Successful",
+        categories: categories
+      });
+    });
+  })
+  .post((req, res, next) => {
+    let category = new Category();
+    category.name = req.body.category;
+    category.save();
     res.json({
       success: true,
-      categories: categories
+      message: "Successful"
     });
   });
-});
 
 /* GET - Single Product */
 router.get('/product/:id', (req, res, next) => {
@@ -200,16 +210,10 @@ router.post('/review', checkJWT, (req, res, next) => {
 });
 
 
-/* ONLY FOR TESTING */
-router.post('/create-new-category', (req, res, next) => {
-  let category = new Category();
-  category.name = req.body.name;
-  category.save();
-  res.json('category created');
-});
+
 
 /* Using Faker */
-router.get('/populate/products/:id', (req, res, next) => {
+router.get('/faker/products/:id', (req, res, next) => {
 
   for (i = 0; i < 30; i++) {
     let product = new Product();

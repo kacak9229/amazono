@@ -1,4 +1,3 @@
-const bodyParser = require('body-parser'); 	// get body-parser
 const jwt        = require('jsonwebtoken');
 const async      = require('async');
 const config     = require('../config');
@@ -16,7 +15,6 @@ router.post('/login', (req, res, next) => {
 	  // find the user
 
     User.findOne({ email: req.body.email }, (err, user) => {
-
 
 	    if (err) throw err;
 
@@ -65,6 +63,7 @@ router.post('/signup', (req, res, next) => {
     user.email = req.body.email;
     user.password = req.body.password;
     user.picture = user.gravatar();
+    user.isSeller = req.body.isSeller;
 
     User.findOne({ email: req.body.email }, (err, existingUser) => {
 
@@ -77,21 +76,21 @@ router.post('/signup', (req, res, next) => {
 
       } else {
 
-        user.save(function(err, user) {
-          if (err) return next(err);
-          var token = jwt.sign({
-	        	user: user
-	        }, superSecret, {
-	          expiresIn: '24h' // expires in 24 hours
-	        });
-
-	        // return the information including token as JSON
-	        res.json({
-	          success: true,
-	          message: 'Enjoy your token!',
-	          token: token
-	        });
+        user.save()
+        var token = jwt.sign({
+          user: user
+        }, superSecret, {
+          expiresIn: '7d' // expires in 24 hours
         });
+
+        // return the information including token as JSON
+        res.json({
+          success: true,
+          message: 'Enjoy your token!',
+          token: token
+        });
+
+
 
       }
     });
@@ -102,6 +101,7 @@ router.route('/profile')
   .get(checkJWT, (req, res, next) => {
     User.findOne({ _id: req.decoded.user._id }, (err, user) => {
       res.json({
+        success: true,
         user: user,
         message: "Successful"
       });

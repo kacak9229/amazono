@@ -14,7 +14,7 @@ const upload = multer({
     s3: s3,
     bucket: 'amazonov1',
     metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
+      cb(null, {fieldName: file.fieldname});
     },
     key: function (req, file, cb) {
       cb(null, Date.now().toString())
@@ -42,7 +42,7 @@ router.route('/products')
   })
 
   .post([checkJWT, upload.single('product_picture')], (req, res, next) => {
-    let product = new Product;
+    let product = new Product();
     product.owner = req.decoded.user._id;
     product.category = req.body.categoryId;
     product.title = req.body.title;
@@ -63,7 +63,7 @@ router.get('/remove-products', checkJWT, (req, res, next) => {
       message: "Successfully removed all the products"
     })
   });
-})
+});
 
 /* Change product images */
 router.get('/change-images', (req, res, next) => {
